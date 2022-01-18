@@ -1,0 +1,82 @@
+{% extends 'flatpages/default.html' %}
+{% load custom_filters %}
+{% load static %}
+{% block title %}
+ONE NEWS for you 'сладенький'
+{% endblock title %}
+
+{% block h1 %}
+Latest news
+{% endblock h1 %}
+
+{% block content %}
+<form method="GET">
+    {% csrf_token %}
+    {{ filter.form }}
+    <input class="btn btn-primary" type="submit" value="Найти">
+</form>
+<!-- Nested row for non-featured blog posts-->
+<div class="row">
+    <div class="col-lg-12">
+        <!-- Blog post-->
+            {% for post in filter.qs %}
+            <div class="small text-muted">{{ post.dateCreation|date:'D m Y H:min'}}</div>
+            <a href="#!"><img class="card-img-top" src="{{ post.postPhoto.url }}" alt="..." /></a>
+            <div class="card-body">
+                <h2 class="card-title h2">{{ post.title|censor }}</h2>
+                <h3 class="card-title h3">Автор: {{ post.author }}</h3>
+                <p class="card-text">{{ post.text|truncatechars:150|censor }}</p>
+                <a class="btn btn-primary" href="{{ post.id }}">Читать</a>
+                <a class="btn btn-primary" href="{% url 'post_update' post.id %}">Редактировать пост</a>
+                            <a class="btn btn-primary" href="{% url 'post_delete' post.id %}">Удалить пост</a>
+                <div class="col-lg-12">
+                    <p></p>
+                    <button type="button" class="btn btn-dark">
+                    Рейтинг <span class="badge badge-light">{{ post.rating }}</span>
+                    </button>
+                </div>
+            </div>
+            <p></p>
+            <hr />
+            <p></p>
+            {% endfor %}
+    </div>
+</div>
+<!-- Pagination-->
+{% if is_paginated %}
+<nav aria-label="Pagination">
+    <hr class="my-0" />
+    <ul class="pagination justify-content-center my-4">
+        {% if page_obj.has_previous %}
+            <li class="page-item disabled"><a class="page-link" href="?page={{ page_obj.previous_page_number }}" tabindex="-1" aria-disabled="true"><<<</a></li>
+<!--            <li class="page-item active" aria-current="page"><a class="page-link" href="?page=1">1</a></li>-->
+        {% endif %}
+
+        {% for num in page_obj.paginator.page_range %}
+            {% if page_obj.number == num %}
+                <li class="page-item"><a class="page-link">{{ num }}</a></li>
+            {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                <li class="page-item"><a class="page-link" href="?page={{ num }}">{{ num }}</a></li>
+            {% endif %}
+        {% endfor %}
+
+        {% if page_obj.has_next %}
+        <li class="page-item"><a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">Last</a></li>
+        <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">>>></a></li>
+        {% endif %}
+    </ul>
+</nav>
+{% endif %}
+{% endblock content %}
+
+{% block sidewidget %}
+<!-- Side widget-->
+<div class="card mb-4">
+    <div class="card-header">Действия</div>
+    <div class="card-body">
+        <a class="btn btn-primary" href="{% url 'post_create' %}">Добавить новый пост</a> <br>
+        <p></p>
+        <a class="btn btn-primary" href="{% url 'search' %}">Поиск</a> <br>
+    </div>
+</div>
+{% endblock sidewidget %}

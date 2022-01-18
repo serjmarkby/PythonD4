@@ -1,0 +1,49 @@
+{% extends 'flatpages/default.html' %}
+{% load custom_filters %}
+{% load static %}
+{% block title %}
+ONE NEWS - поиск новостей
+{% endblock title %}
+
+{% block h1 %}
+Поиск новостей
+{% endblock h1 %}
+
+
+{% block content %}
+<!-- Nested row for non-featured blog posts-->
+<form method="GET">
+    {% csrf_token %}
+    {{ filter.form }}
+    <input class="btn btn-primary" type="submit" value="Найти">
+</form>
+{% for post in filter.qs %}
+<div class="col-lg-12">
+    <div class="card mb-4">
+        <div class="small text-muted">{{ post.dateCreation|date:'D m Y H:min'}}</div>
+        <a href="#!"><img class="card-img-top" src="{{ post.postPhoto.url }}" alt="..." /></a>
+        <div class="card-body">
+            <h3 class="card-title-h3">{{ post.title|censor }}</h3>
+            <h4 class="card-title-h4">Автор: {{ post.author }}</h4>
+            <p></p>
+            <p class="card-text">{{ post.text|censor }}</p>
+            <a class="btn btn-primary" href="#!">Комментировать</a>
+            <a class="btn btn-primary" href="{% url 'post_update' post.id %}">Редактировать пост</a>
+            <a class="btn btn-primary" href="{% url 'post_delete' post.id %}">Удалить пост</a>
+        </div>
+    </div>
+</div>
+{% endfor %}
+{% endblock content %}
+
+{% block sidewidget %}
+<!-- Side widget-->
+<div class="card mb-4">
+    <div class="card-header">Действия</div>
+    <div class="card-body">
+        <a class="btn btn-primary" href="{% url 'post_create' %}">Добавить новый пост</a> <br>
+        <p></p>
+        <a class="btn btn-primary" href="{% url 'search' %}">Поиск</a> <br>
+    </div>
+</div>
+{% endblock sidewidget %}
